@@ -1,0 +1,73 @@
+type a_list =
+  | ANil
+  | ACons of A * a_list
+
+type b_list =
+  | BNil
+  | BCons of B * b_list
+
+type pair_list =
+  | PNil
+  | PCons of A * B * pair_list
+
+synth
+  zip : [(a_list * b_list)] -> pair_list calling [zip] ;;
+
+satisfying
+
+type nat =
+  | O 
+  | S of nat
+
+type bool =
+  | False
+  | True
+
+let not =
+  fun (b: bool) ->
+    match b with
+    | True -> False
+    | False -> True
+;;
+
+let implies_unc =
+  fun (b1b2: bool * bool) ->
+    match b1b2 with
+    | (True, False) -> False
+    | _ -> True
+;;
+
+let length_a =
+  fix (length_a : a_list -> nat) =
+    fun (l : a_list) ->
+      match l with
+      | ANil -> O
+      | ACons (x, xs) -> S (length_a xs)
+;;
+
+let length_b =
+  fix (length_b : b_list -> nat) =
+    fun (l : b_list) ->
+      match l with
+      | BNil -> O
+      | BCons (x, xs) -> S (length_b xs)
+;;
+
+let length_p =
+  fix (length_p : pair_list -> nat) =
+    fun (l : pair_list) ->
+      match l with
+      | PNil -> O
+      | PCons (_, _, xs) -> S (length_p xs)
+;;
+
+let min =
+  fix (min : (nat * nat) -> nat) =
+    fun (n1n2:nat * nat) ->
+      match n1n2 with
+      | (O,_) -> O
+      | (_,O) -> O
+      | (S n1, S n2) -> S (min (n1,n2))
+      ;;
+
+test forall (xs: a_list) . forall (ys: b_list) . ((length_p (zip (xs, ys))) == (min ((length_a xs),(length_b ys)))) ;;

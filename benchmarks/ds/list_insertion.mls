@@ -1,0 +1,28 @@
+type list =
+  | Nil
+  | Cons of A * list
+
+type bool =
+  | False
+  | True
+
+synth
+  insert : [(A * list)] -> list calling [insert] ;;
+
+satisfying
+
+let contains =
+  fix (contains : A * list -> bool) =
+    fun (x1x2 : A * list) ->
+        match x1x2 with
+        | (x, Nil) -> False
+        | (x, Cons (y, ys)) ->
+          match x == y with
+          | True -> True
+          | _ -> contains (x, ys)
+;;
+
+(* membership test of the result of insert should be true *)
+test forall (x : A) . forall (xs : list) . (contains (x, insert (x, xs))) == True ;;
+
+io insert ((| A 0), Cons ((| A 0), Cons ((| A 1), Nil))) -> Cons ((| A 0), Cons ((| A 1), Cons ((| A 0), Nil))) ;;

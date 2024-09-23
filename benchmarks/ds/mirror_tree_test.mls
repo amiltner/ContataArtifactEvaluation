@@ -1,0 +1,75 @@
+type bool =
+  | True
+  | False
+
+type tree =
+  | Leaf
+  | Node of (tree * bool * tree)
+
+synth
+  mirror : [tree] -> tree calling [mirror] ;;
+
+satisfying
+
+let and =
+  fun (b1: bool) ->
+    fun (b2: bool) ->
+      match b1 with
+      | True -> b2
+      | False -> False
+;;
+
+let not =
+  fun (b: bool) ->
+    match b with
+    | True -> False
+    | False -> True
+;;
+
+let implies =
+  fun (b1: bool) -> fun (b2: bool) ->
+    match b1 with
+    | True -> b2
+    | False -> True
+;;
+
+let bool_eq =
+  fun (b1: bool) -> fun (b2: bool) ->
+  match b1 with
+  | False -> not b2
+  | True -> b2
+;;
+
+(*
+let symmetric_equal =
+  fix (symmetric_equal: tree -> tree -> bool) =
+    fun (t1: tree) -> fun (t2: tree) ->
+    match t1 with
+    | Leaf -> (match t2 with
+               | Leaf -> True
+               | Node _ -> False)
+    | Node (l1,x1,r1) ->
+              (match t2 with
+              | Leaf -> False
+              | Node (l2,x2,r2) ->
+                and (bool_eq x1 x2) (and (symmetric_equal l1 r2) (symmetric_equal l2 r1)))
+;;
+
+let symmetric =
+  fun (t:tree) ->
+    match t with
+    | Leaf -> True
+    | Node (l,x,r) -> symmetric_equal l r
+;;
+test forall (x : tree) .
+  implies (not (symmetric x)) (not ((mirror x) == x)) ;;
+*)
+
+io mirror Leaf -> Leaf ;;
+io mirror (Node (Leaf, True, Leaf)) -> Node (Leaf, True, Leaf) ;;
+io mirror (Node (Node (Leaf, True, Leaf), True, Leaf)) -> Node (Leaf, True, Node (Leaf, True, Leaf)) ;;
+
+test forall (x : tree) . (mirror (mirror x)) == x ;;
+
+
+

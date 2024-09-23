@@ -1,0 +1,134 @@
+type nat =
+  | O 
+  | S of nat
+
+type bool =
+  | True
+  | False
+
+type list = mu list .
+  | Nil of nat
+  | Cons of (A * nat * list)
+
+type t = list
+type tapair = (t * A)
+
+let empty = Nil O ;;
+
+synth
+  insert : [tapair] -> t calling [] ;;
+
+satisfying
+
+let nat_eq_unc =
+  fix (nat_eq_unc : nat * nat -> bool) =
+    fun (x1x2 : nat * nat) ->
+        match x1x2 with
+        | (O, O) -> True
+        | (S l, S r) -> nat_eq_unc (l, r)
+        | _ -> False
+;;
+
+let length =
+  fun (l : t) ->
+    match l with
+    | Nil xl -> xl
+    | Cons (_, xl, _) -> xl
+;;
+
+let lookup =
+  fix (lookup : (t * A) -> bool) =
+    fun (lx : (t * A)) ->
+      match lx with
+      | (Nil _, _) -> False
+      | (Cons (xx, xl, xs), x) ->
+        (match (xx == x) with
+          | True -> True
+          | False -> lookup (xs, x))
+;;
+
+(*let delete =
+  fun (lx: (t * A)) ->
+    match lx with
+    | (l, x) -> ((fix (delete : (nat * t * A) -> t) =
+                  fun (slx : (nat * t * A)) ->
+                    match slx with
+                    | (s, l, x) ->
+                      (match s with
+                      | O -> l
+                      | S ->
+                      (match l with
+                        | Nil -> l
+                        | Cons (xx, xl, xs) -> (match x == xx with
+                                  | True -> delete (s, xs, x)
+                                  | False -> (fun (l : t) -> Cons(S (length l), xl, l))
+                                            (delete (s, xs, x))))))
+                ((length l), l, x))
+;;*)
+
+
+let and =
+  fun (b1: bool) ->
+    fun (b2: bool) ->
+      match b1 with
+      | True -> b2
+      | False -> False
+;;
+
+let not =
+  fun (b: bool) ->
+    match b with
+    | True -> False
+    | False -> True
+;;
+
+let nat_lt =
+  fix (nat_lt : nat -> nat -> bool) =
+    fun (x1 : nat) ->
+      fun (x2 : nat) ->
+        match x1 with
+        | O -> (match x2 with
+                | O -> False
+                | S -> True)
+        | S l -> (match x2 with
+                | O -> False
+                | S r -> nat_lt l r)
+;;
+
+let invariant =
+  fix (invariant : list -> bool) =
+    fun (l1: list) ->
+      match l1 with
+        | Nil _ -> True
+        | Cons (x, l, xs) -> match invariant xs with
+                              | False -> False
+                              | True -> nat_lt (length xs) l
+;;
+
+let implies_unc =
+  fun (b1b2: bool * bool) ->
+    match b1b2 with
+    | (True, False) -> False
+    | _ -> True
+;;
+
+
+test forall (s : t) . forall (i : A) . (implies_unc ((invariant s), (invariant (insert (s, i))))) ;;
+
+
+io insert (empty, (| A 0)) -> Cons((| A 0), 1, Nil O)  ;;
+io insert (Cons((| A 0), 1, Nil O), (| A 1)) -> Cons((| A 1), 2, Cons((| A 0), 1, Nil O)) ;;
+
+(*
+test
+forall (s : t) .
+  forall (i : nat) .
+        (not (lookup ((delete (s, i)), i))) ;;
+
+io delete (Cons(1, 0, Nil O), 1) -> Nil O ;;
+io delete (Cons(1, 0, Nil O), 2) -> Cons(1, 0, Nil O) ;;
+io delete (Cons(2, 3, Cons(1, 0, Nil O)), 1) -> Cons(1, 3, Nil O) ;;
+io length Nil(O) -> O ;;
+io length Cons(1, 0, Nil O) -> 1 ;;
+io length Cons(2, 3, Cons(1, 0, Nil O)) -> 2;;
+*)

@@ -1,0 +1,48 @@
+type list =
+  | Nil
+  | Cons of A * list
+
+type bool =
+  | True
+  | False
+
+type compare =
+  | Eq
+  | Lt
+  | Gt
+
+let a_lte_unc =
+    fun (x1x2 : A * A) ->
+        match x1x2 with
+        | (x1, x2) -> x1 <= x2
+;;
+
+synth
+  list_cmp : [(list * list)] -> compare calling [list_cmp] ;; 
+
+satisfying
+
+let not =
+  fun (b: bool) ->
+    match b with
+    | True -> False
+    | False -> True
+;;
+
+let implies_unc =
+  fun (b1b2: bool * bool) ->
+    match b1b2 with
+    | (True, False) -> False
+    | _ -> True
+;;
+
+test forall (xs : list) . (list_cmp (xs, xs)) == Eq ;;
+
+test forall (x : A) . (list_cmp (Cons(x, Nil), Nil)) == Gt ;;
+test forall (x : A) . (list_cmp (Nil, Cons(x, Nil))) == Lt ;;
+
+io list_cmp (Cons ((| A 0), Nil), Cons ((| A 1), Nil)) -> Lt ;;
+io list_cmp (Cons ((| A 1), Nil), Cons ((| A 0), Nil)) -> Gt ;;
+
+
+

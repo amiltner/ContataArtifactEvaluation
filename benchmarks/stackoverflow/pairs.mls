@@ -1,0 +1,60 @@
+type nat =
+  | O 
+  | S of nat
+
+type list =
+  | Nil
+  | Cons of A * list
+
+type pair_list =
+  | PNil
+  | PCons of (A * A) * pair_list
+
+synth
+  pairs : [list] -> pair_list calling [pairs] ;;
+
+satisfying
+
+type bool =
+  | False
+  | True
+
+let not =
+  fun (b: bool) ->
+    match b with
+    | True -> False
+    | False -> True
+;;
+
+let pair_list_to_list =
+  fix (pair_list_to_list : pair_list -> list) =
+    fun (p : pair_list) ->
+      match p with
+      | PNil -> Nil
+      | PCons ((x, y), xp) -> Cons (x, Cons (y, pair_list_to_list xp))
+;;
+
+let is_even =
+  fix (is_even : nat -> bool) =
+    fun (n : nat) ->
+      match n with
+      | O -> True
+      | S x -> not (is_even x)
+;;
+
+let implies_unc =
+  fun (b1b2: bool * bool) ->
+    match b1b2 with
+    | (True, False) -> False
+    | _ -> True
+;;
+
+let length =
+  fix (length : list -> nat) =
+    fun (l : list) ->
+      match l with
+      | Nil -> O
+      | Cons (x, xs) -> S (length xs)
+;;
+
+test forall (xs: list) . implies_unc (is_even (length xs), (pair_list_to_list (pairs xs)) == xs ) ;;

@@ -1,0 +1,58 @@
+type nat =
+  | O 
+  | S of nat
+
+type list =
+  | Nil
+  | Cons of nat * list
+
+type bool =
+  | True
+  | False
+
+let nat_eq_unc =
+  fix (nat_eq_unc : nat * nat -> bool) =
+    fun (x1x2 : nat * nat) ->
+        match x1x2 with
+        | (O, O) -> True
+        | (S l, S r) -> nat_eq_unc (l, r)
+        | _ -> False
+;;
+
+synth
+  list_cmp : [(list * list)] -> bool calling [list_cmp] ;; 
+
+satisfying
+
+let not =
+  fun (b: bool) ->
+    match b with
+    | True -> False
+    | False -> True
+;;
+
+let implies_unc =
+  fun (b1b2: bool * bool) ->
+    match b1b2 with
+    | (True, False) -> False
+    | _ -> True
+;;
+
+(*
+test forall (x : nat) .
+      forall (y : nat) .
+        forall (z : nat) .
+          (implies_unc (list_cmp (Cons(x,Cons(y,Nil)), Cons(x,Cons(z,Nil))), nat_eq x z)) ;;
+
+io list_cmp (Nil, Nil) -> True ;;
+io list_cmp (Cons(O,Nil), Cons(O,Nil)) -> True ;;
+io list_cmp (Cons(O,Nil), Cons(1,Nil)) -> False ;;
+*)
+
+test forall (xs : list) . (list_cmp (xs, xs)) == True ;;
+test forall (x : nat) . forall (y : nat) .
+  implies_unc (not (nat_eq_unc (x, y)), not (list_cmp (Cons(x, Nil), Cons(y, Nil)))) ;;
+test forall (x : nat) . not (list_cmp (Cons(x, Nil), Nil)) ;;
+
+
+

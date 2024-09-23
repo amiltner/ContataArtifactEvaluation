@@ -1,0 +1,49 @@
+type par =
+  | Left
+  | Right
+
+type list =
+  | Nil
+  | Cons of par * list
+
+type bool =
+  | True
+  | False
+
+let not =
+  fun (b: bool) ->
+    match b with
+    | True -> False
+    | False -> True
+;;
+
+synth
+  is_open : [list] -> bool calling [is_close] ;;
+  is_close  : [list] -> bool calling [is_open] ;;
+
+satisfying
+
+let list_concat =
+  fix (list_concat : list -> list -> list) =
+    fun (xs : list) ->
+      fun (ys : list) ->
+        match xs with
+        | Nil -> ys
+        | Cons(x, xs) -> Cons(x, list_concat xs ys)
+;;
+
+test forall (xs : list) . (is_open xs) == (not (is_close xs)) ;;
+
+
+(* base cases *)
+io is_open Nil -> True;;
+io is_close Nil -> False;;
+
+(* inductive cases *)
+io is_close (Cons(Right, Nil)) -> True;;
+io is_open Cons(Left, Nil) -> False;;
+
+io is_open (Cons(Left, Cons(Right, Nil))) -> True;;
+io is_close (Cons(Left, Cons(Right, Nil)))  -> False;;
+
+io is_open (Cons(Left, Cons(Right, Cons(Right, Nil))))  -> False;;

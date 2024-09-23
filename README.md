@@ -1,2 +1,2 @@
-# ContataArtifactEvaluation
-Artifact Evaluation for Contata
+# Contata
+Constrained Annotated Tree Automata

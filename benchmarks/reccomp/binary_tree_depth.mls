@@ -1,0 +1,54 @@
+type bst =
+  | Leaf
+  | Node of (bst * A * bst)
+
+type compare =
+  | Eq
+  | Lt
+  | Gt
+
+type nat =
+  | O
+  | S of nat
+
+let nat_cmp =
+  fix (nat_cmp : (nat * nat) -> compare) =
+    fun (x1x2:nat * nat) ->
+        match x1x2 with
+        | (O,O) -> Eq
+        | (O,_) -> Lt
+        | (_,O) -> Gt
+        | (S n1, S n2) -> nat_cmp (n1,n2)
+;;
+
+synth
+  depth : [(bst)] -> nat calling [depth] ;;
+  bt_cmp : [(bst * bst)] -> compare calling [depth] ;;
+
+satisfying
+
+type bool =
+  | False
+  | True
+
+let not =
+  fun (b: bool) ->
+    match b with
+    | True -> False
+    | False -> True
+;;
+
+let implies_unc =
+  fun (b1b2: bool * bool) ->
+    match b1b2 with
+    | (True, False) -> False
+    | _ -> True
+;;
+
+
+io depth Leaf -> 0 ;;
+test forall (b:bst) . (depth Node(b,(| A 0),Leaf)) == S (depth b) ;;
+test forall (b:bst) . (depth Node(Leaf,(| A 0),b)) == S (depth b) ;;
+
+test forall (b : bst) . (bt_cmp (b, b)) == Eq ;;
+test forall (b1 : bst) . forall (b2 : bst) . (nat_cmp ((depth b1),(depth b2))) == (bt_cmp (b1,b2)) ;;

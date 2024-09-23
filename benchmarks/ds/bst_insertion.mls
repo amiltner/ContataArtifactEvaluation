@@ -1,0 +1,60 @@
+type bool =
+  | True
+  | False
+
+type tree =
+  | Leaf
+  | Node of (tree * A * tree)
+
+let cmp_a =
+  fun (x1x2:A*A) ->
+        match x1x2 with
+        | (x1, x2) -> x1 <= x2
+    ;;
+
+type t = A
+
+synth
+  insert : [tree * t] -> tree calling [insert] ;;
+
+satisfying
+
+let lookup =
+  fix (lookup : tree * t -> bool) =
+  fun (tx : tree * t) ->
+    match tx with
+    | (Leaf, _) -> False
+    | (Node (l, x, r), y) ->
+        (match x == y with
+        | True -> True
+        | False -> (match (x <= y) with
+                    | True -> lookup (r, y)
+                    | False -> lookup (l, y)))
+;;
+
+let and_unc =
+  fun (b1b2: bool * bool) ->
+    match b1b2 with
+    | (True, True) -> True
+    | _ -> False
+;;
+
+let not =
+  fun (b: bool) ->
+    match b with
+    | True -> False
+    | False -> True
+;;
+
+let implies_unc =
+  fun (b1b2: bool * bool) ->
+    match b1b2 with
+    | (True, False) -> False
+    | _ -> True
+;;
+
+test forall (tr : tree) . forall (x : t) . (lookup (insert (tr, x), x)) == True ;;
+test forall (tr : tree) . forall (x : t) . forall (y : t) .implies_unc (lookup (tr,x),(lookup (insert (tr, y), x))) ;;
+
+io insert (Node (Leaf, (| A 1), Leaf), (| A 0)) -> Node (Node (Leaf, (| A 0), Leaf), (| A 1), Leaf) ;;
+io insert (Node (Leaf, (| A 0), Leaf), (| A 1)) -> Node (Leaf, (| A 0), Node (Leaf, (| A 1), Leaf)) ;;

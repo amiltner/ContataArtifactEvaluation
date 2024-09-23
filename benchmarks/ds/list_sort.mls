@@ -1,0 +1,44 @@
+type list =
+  | Nil
+  | Cons of A * list
+
+type bool =
+  | False
+  | True
+
+let a_leq_unc =
+    fun (x1x2 : A * A) ->
+        match x1x2 with
+        | (x1, x2) -> x1 <= x2
+;;
+
+synth
+  insert_sort : [(A * list)] -> list calling [insert_sort] ;;
+
+satisfying
+
+let sorted = 
+  fix (sorted : list -> bool) =
+    fun (xs : list) ->
+        match xs with
+        | Nil -> True
+        | Cons (x, Nil) -> True
+        | Cons (x, Cons (y, ys)) ->
+          match (x <= y) with
+          | True -> sorted (Cons (y, ys))
+          | _ -> False
+;;
+
+let bimpl =
+  fun (b1b2:bool * bool) ->
+    match b1b2 with
+    | (True,False) -> False
+    | _ -> True
+;;
+
+test forall (x : A) . forall (xs : list) .
+  bimpl (sorted xs,(sorted (insert_sort (x, xs)))) ;;
+
+io insert_sort ((| A 2), Nil) -> Cons ((| A 2), Nil) ;;
+io insert_sort ((| A 0), Cons((| A 1),Nil)) -> Cons((| A 0),Cons ((| A 1), Nil)) ;;
+io insert_sort ((| A 2), Cons ((| A 0), Cons ((| A 1), Nil))) -> Cons ((| A 0), Cons ((| A 1), Cons ((| A 2), Nil))) ;;

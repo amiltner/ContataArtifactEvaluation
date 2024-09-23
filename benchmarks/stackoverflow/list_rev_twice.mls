@@ -1,0 +1,28 @@
+type bool =
+  | False
+  | True
+
+type list =
+  | Nil
+  | Cons of A * list
+
+let append =
+  fix (append : list -> list -> list) =
+    fun (l1:list) ->
+      fun (l2:list) ->
+        match l1 with
+        | Nil -> l2
+        | Cons(h,t) -> Cons(h,append t l2)
+;;
+
+synth
+  reverse : [list] -> list calling [reverse] ;;
+
+satisfying
+
+io reverse Nil -> Nil ;;
+io reverse Cons ((| A 0), Nil) -> Cons ((| A 0), Nil) ;;
+io reverse (Cons ((| A 1), Cons ((| A 0), Nil))) -> (Cons ((| A 0), Cons ((| A 1), Nil))) ;;
+io reverse (Cons ((| A 2), Cons ((| A 1), Cons ((| A 0), Nil)))) -> (Cons ((| A 0), Cons ((| A 1), Cons ((| A 2), Nil)))) ;;
+
+test forall (xs: list) . (reverse (reverse xs)) == xs ;;

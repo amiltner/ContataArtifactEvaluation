@@ -1,0 +1,19 @@
+type bool =
+  | True
+  | False
+
+type tree =
+  | Leaf
+  | Node of (tree * A * tree * tree)
+
+synth
+  mirror : [tree] -> tree calling [mirror] ;;
+
+satisfying
+
+io mirror Leaf -> Leaf ;;
+io mirror Node(Node(Leaf, (| A 1), Leaf, Leaf), (| A 0), Leaf, Leaf) -> Node(Leaf, (| A 0), Leaf, Node(Leaf, (| A 1), Leaf, Leaf)) ;;
+io mirror Node(Node(Leaf, (| A 0), Leaf, Leaf), (| A 1), Leaf, Leaf) -> Node(Leaf, (| A 1), Leaf, Node(Leaf, (| A 0), Leaf, Leaf)) ;;
+
+test forall (x : tree) . (mirror (mirror (mirror (mirror x)))) == x ;;
+test forall (x : tree) . (mirror (mirror (mirror x))) == (mirror x) ;;

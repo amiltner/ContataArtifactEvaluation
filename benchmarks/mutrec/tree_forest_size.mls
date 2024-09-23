@@ -1,0 +1,56 @@
+type nat =
+  | O
+  | S of nat
+
+type tree =
+  | Empty
+  | Node of A * forest
+
+type forest =
+  | Leaf
+  | Tree of tree * forest
+
+let add =
+  fix (add : nat -> nat -> nat) =
+    fun (x1 : nat) ->
+      fun (x2 : nat) ->
+        match x1 with
+        | O -> x2
+        | S v -> add v (S x2)
+;;
+
+synth
+  size_tree : [tree] -> nat calling [size_forest] ;;
+  size_forest : [forest] -> nat calling [size_tree, size_forest] ;;
+
+satisfying
+
+type bool =
+  | False
+  | True
+
+let not = fun (x : bool) -> match x with | False -> True | True -> False ;;
+
+let nat_lt_unc =
+  fix (nat_lt_unc : nat * nat -> bool) =
+    fun (x1x2 : nat * nat) ->
+        match x1x2 with
+        | (O, O) -> False
+        | (S _, O) -> False
+        | (O, S _) -> True
+        | (S l, S r) -> nat_lt_unc (l, r)
+;;
+
+test forall (f: forest) . nat_lt_unc (size_forest f, size_tree (Node ((| A 0), f))) ;;
+test forall (f: forest) . not (nat_lt_unc (size_forest (Tree (Empty, f)), size_forest f)) ;;
+
+io size_tree Empty -> 0 ;;
+io size_forest Leaf -> 0 ;;
+
+io size_tree (Node ((| A 0), Leaf)) -> 1 ;;
+io size_forest (Tree (Empty, Leaf)) -> 0 ;;
+io size_forest (Tree (Node ((| A 0), Leaf), Leaf)) -> 1 ;;
+io size_forest (Tree (Empty, Tree (Empty, Leaf))) -> 0 ;;
+io size_forest (Tree (Node ((| A 0), Leaf), Tree (Node ((| A 1), Leaf), Leaf))) -> 2 ;;
+io size_forest (Tree (Empty, Tree (Node ((| A 1), Leaf), Leaf))) -> 1 ;;
+

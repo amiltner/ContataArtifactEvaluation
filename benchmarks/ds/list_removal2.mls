@@ -1,0 +1,51 @@
+type list =
+  | Nil
+  | Cons of A * list
+
+type bool =
+  | False
+  | True
+
+let a_eq_unc =
+    fun (x1x2 : A * A) ->
+        match x1x2 with
+        | (x, y) -> x == y
+;;
+
+synth
+  remove : [(A * list)] -> list calling [remove] ;;
+
+satisfying
+
+let not =
+  fun (b : bool) ->
+    match b with
+    | True -> False
+    | False -> True
+;;
+
+let and_unc =
+  fun (b1b2: bool * bool) ->
+    match b1b2 with
+    | (True, True) -> True
+    | _ -> False
+;;
+
+let contains =
+  fix (contains : A * list -> bool) =
+    fun (x1x2 : A * list) ->
+        match x1x2 with
+        | (x, Nil) -> False
+        | (x, Cons (y, ys)) ->
+          match x == y with
+          | True -> True
+          | _ -> contains (x, ys)
+;;
+
+(* list removal results in a list with the same elements as the original list except for the removed element *)
+test forall (x : A) . forall (y : A) . forall (xs : list) .
+  (contains (y, remove (x, xs))) == (and_unc (not (x == y), contains (y, xs))) ;;
+
+
+io remove ((| A 0),Cons ((| A 1), Cons ((| A 0), Nil))) -> Cons ((| A 1), Nil) ;;
+io remove ((| A 0),Cons ((| A 0), Cons ((| A 1), Nil))) -> Cons ((| A 1), Nil) ;;

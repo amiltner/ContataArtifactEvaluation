@@ -1,0 +1,23 @@
+type list =
+  | Nil
+  | Cons of A * list
+
+synth
+  evens : [list] -> list calling [odds] ;;
+  odds  : [list] -> list calling [evens] ;;
+
+satisfying
+
+test forall (x : A) . forall (xs : list) . (odds (Cons (x, xs))) == (evens xs) ;;
+
+io evens Nil -> Nil ;;
+io odds Nil -> Nil ;;
+io evens (Cons ((| A 0), Nil)) -> Cons ((| A 0), Nil) ;;
+io odds (Cons ((| A 0), Nil)) -> Nil ;;
+(*
+io odds (Cons (0, Cons (1, Cons (2, Nil)))) -> Cons (1, Nil) ;;
+*)
+
+io evens (Cons ((| A 0), Cons ((| A 1), Nil))) -> Cons ((| A 0), Nil) ;;
+io odds (Cons ((| A 0), Cons ((| A 1), Nil))) -> Cons ((| A 1), Nil) ;;
+io evens (Cons ((| A 0), Cons ((| A 1), Cons ((| A 2), Nil)))) -> Cons ((| A 0), Cons ((| A 2), Nil)) ;;

@@ -1,0 +1,23 @@
+opam-version: "2.0"
+name: "cta_impl"
+version: "0.0.1"
+author: "Anders Miltner"
+maintainer: "miltner@cs.sfu.ca"
+license: "MIT"
+synopsis: "Implementation of CTAs"
+build: [
+  ["dune" "build" "-p" name "-j" jobs]
+]
+depends: [
+  "ocaml" { >= "4.12.0" }
+  "dune" { >= "2.9.0" }
+  "core" { >= "v0.16.0" }
+  "ppx_deriving" { >= "4.5" }
+  "ppx_hash" { >= "v0.14.0" }
+  "posix-math" { >= "0.3.1-0" }
+
+]
+tags: [ "stdlib" "containers" ]
+homepage: "https://github.com/amiltner/CTA-Impl"
+dev-repo: "git+https://github.com/amiltner/CTA-Impl.git"
+bug-reports: "https://github.com/amiltner/CTA-Impl/issues"

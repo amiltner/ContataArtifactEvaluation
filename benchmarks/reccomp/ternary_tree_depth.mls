@@ -1,0 +1,58 @@
+type nat =
+  | O
+  | S of nat
+
+type tree = mu tree .
+  | Leaf
+  | Node of (tree * A * tree * tree)
+
+type compare =
+  | Eq
+  | Lt
+  | Gt
+
+let nat_cmp =
+  fix (nat_cmp : (nat * nat) -> compare) =
+    fun (x1x2:nat * nat) ->
+        match x1x2 with
+        | (O,O) -> Eq
+        | (O,_) -> Lt
+        | (_,O) -> Gt
+        | (S n1, S n2) -> nat_cmp (n1,n2)
+;;
+
+synth
+  depth : [tree] -> nat calling [depth] ;;
+  tt_cmp : [(tree * tree)] -> compare calling [tt_cmp] ;;
+
+satisfying
+
+type bool =
+  | False
+  | True
+
+let not =
+  fun (b: bool) ->
+    match b with
+    | True -> False
+    | False -> True
+;;
+
+let implies_unc =
+  fun (b1b2: bool * bool) ->
+    match b1b2 with
+    | (True, False) -> False
+    | _ -> True
+;;
+
+
+io depth Leaf -> 0 ;;
+test forall (t:tree) . (depth Node(t,(| A 0),Leaf,Leaf)) == S (depth t) ;;
+test forall (t:tree) . (depth Node(Leaf,(| A 0),t,Leaf)) == S (depth t) ;;
+test forall (t:tree) . (depth Node(Leaf,(| A 0),Leaf,t)) == S (depth t) ;;
+
+test forall (b : tree) . (tt_cmp (b, b)) == Eq ;;
+
+io tt_cmp (Leaf, Node (Leaf, (| A 0), Leaf, Leaf)) -> Lt ;;
+io tt_cmp (Node (Leaf, (| A 0), Node (Leaf, (| A 0), Leaf, Leaf), Leaf), Node (Leaf, (| A 0), Leaf, Leaf)) -> Gt ;;
+io tt_cmp (Node (Node (Leaf, (| A 0), Leaf, Leaf), (| A 0), Leaf, Leaf), Node (Leaf, (| A 0), Leaf, Leaf)) -> Gt ;;

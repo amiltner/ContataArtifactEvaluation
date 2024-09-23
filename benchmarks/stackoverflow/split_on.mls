@@ -1,0 +1,41 @@
+type nat =
+  | O
+  | S of nat
+
+type bool =
+  | False
+  | True
+
+type nested_list =
+  | NNil
+  | NCons of list * nested_list
+
+type list =
+  | Nil
+  | Cons of nat * list
+
+synth
+  split_on_zero : [list] -> nested_list calling [split_on_zero] ;;
+
+satisfying
+
+let concat_list_unc =
+  fix (concat_list_unc: list * list -> list) =
+    fun (l1l2: list * list) ->
+      match l1l2 with
+      | (Nil, l2) -> l2
+      | (Cons (x, xs), l2) -> Cons (x, concat_list_unc (xs, l2))
+;;
+
+let concat_list =
+  fix (concat_list: nested_list -> list) =
+    fun (ls: nested_list) ->
+      match ls with
+      | NNil -> Nil
+      | NCons (l, ls) -> concat_list_unc (l, concat_list ls)
+;;
+
+
+test forall (l: list). l == (concat_list (split_on_zero l)) ;;
+io split_on_zero (Cons (S O, Cons (O, Cons (S O, Nil)))) -> (NCons (Cons (S O, Nil), NCons (Cons (0, Nil), NCons (Cons (S O, Nil), NNil)))) ;;
+io split_on_zero (Cons (S O, Cons (S O, Cons (S (S O), Nil)))) -> (NCons ((Cons (S O, Cons (S O, Cons (S (S O), Nil)))), NNil)) ;;

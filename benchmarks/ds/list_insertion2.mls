@@ -1,0 +1,38 @@
+type list =
+  | Nil
+  | Cons of A * list
+
+type bool =
+  | False
+  | True
+
+synth
+  insert : [(A * list)] -> list calling [insert] ;;
+
+satisfying
+
+let contains =
+  fix (contains : A * list -> bool) =
+    fun (x1x2 : A * list) ->
+        match x1x2 with
+        | (x, Nil) -> False
+        | (x, Cons (y, ys)) ->
+          match x == y with
+          | True -> True
+          | _ -> contains (x, ys)
+;;
+
+let implies_unc =
+  fun (b1b2: bool * bool) ->
+    match b1b2 with
+    | (True, False) -> False
+    | _ -> True
+;;
+
+(* insertion preserves the property of containing the inserted element *)
+test forall (x : A) .
+      forall (y : A) .
+        forall (xs : list) .
+          implies_unc (contains (x, xs), contains (x, insert (y, xs))) ;;
+
+io insert ((| A 0), Cons ((| A 0), Cons ((| A 1), Nil))) -> Cons ((| A 0), Cons ((| A 1), Cons ((| A 0), Nil))) ;;

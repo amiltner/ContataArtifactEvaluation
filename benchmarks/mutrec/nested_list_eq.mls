@@ -1,0 +1,64 @@
+type nat =
+  | O 
+  | S of nat
+
+type list =
+  | Nil
+  | Cons of nat * list
+
+type nested_list =
+  | NNil
+  | NCons of list * nested_list
+
+type bool =
+  | True
+  | False
+
+let nat_eq_unc =
+  fix (nat_eq_unc : nat * nat -> bool) =
+    fun (x1x2 : nat * nat) ->
+        match x1x2 with
+        | (O, O) -> True
+        | (S l, S r) -> nat_eq_unc (l, r)
+        | _ -> False
+;;
+
+let list_cmp =
+  fix (list_cmp : list * list -> bool) =
+    fun (l1l2 : list * list) ->
+      match l1l2 with
+      | (Nil, Nil) -> True
+      | (Cons(x1, xs1), Cons(x2, xs2)) -> (
+          match nat_eq_unc (x1, x2) with
+          | True -> list_cmp (xs1, xs2)
+          | False -> False
+      )
+      | _ -> False
+;;
+
+synth
+  nested_list_cmp : [(nested_list * nested_list)] -> bool calling [nested_list_cmp] ;;
+
+satisfying
+
+let not =
+  fun (b: bool) ->
+    match b with
+    | True -> False
+    | False -> True
+;;
+
+let implies_unc =
+  fun (b1b2: bool * bool) ->
+    match b1b2 with
+    | (True, False) -> False
+    | _ -> True
+;;
+
+test forall (ns: nested_list) . (nested_list_cmp (ns, ns)) == True ;;
+test forall (xs : list) . forall (ys : list) .
+  implies_unc (not (list_cmp (xs, ys)), not (nested_list_cmp (NCons(xs, NNil), NCons(ys, NNil)))) ;;
+test forall (xs : list) . not (nested_list_cmp (NCons(xs, NNil), NNil)) ;;
+
+
+

@@ -1,0 +1,43 @@
+type nat =
+  | O
+  | S of nat
+
+type bst =
+  | Leaf
+  | Node of (bst * A * bst)
+
+type bool =
+  | False
+  | True
+
+let a_eq_unc =
+    fun (x1x2 : A * A) -> x1x2.0 == x1x2.1
+;;
+
+
+synth
+  bt_eq : [(bst * bst)] -> bool calling [bt_eq] ;; 
+
+satisfying
+
+let not =
+  fun (b: bool) ->
+    match b with
+    | True -> False
+    | False -> True
+;;
+
+let implies_unc =
+  fun (b1b2: bool * bool) ->
+    match b1b2 with
+    | (True, False) -> False
+    | _ -> True
+;;
+
+io bt_eq (Node(Leaf, (| A 0), Node(Leaf, (| A 3), Leaf)), Node(Leaf, (| A 0), Node(Leaf, (| A 3), Leaf))) -> True ;;
+io bt_eq (Node(Leaf, (| A 0), Node(Leaf, (| A 1), Leaf)), Node(Leaf, (| A 0), Node(Leaf, (| A 3), Leaf))) -> False ;;
+
+test forall (b : bst) . (bt_eq (b, b)) == True ;;
+test forall (b1 : bst) . forall (b2 : bst) . (implies_unc (bt_eq (b1, b2), bt_eq (b2, b1))) == True ;;
+test forall (b1 : bst) . forall (b2 : bst) . forall (n : A) . (bt_eq (b1, Node(b1, n, b2))) == False ;;
+io bt_eq (Node(Leaf, (| A 0), Node(Leaf, (| A 1), Leaf)), Node(Leaf, (| A 0), Node(Leaf, (| A 1), Leaf))) -> True ;;

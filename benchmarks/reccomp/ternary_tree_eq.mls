@@ -1,0 +1,39 @@
+type nat =
+  | O
+  | S of nat
+
+type bool =
+  | False
+  | True
+
+type tree = mu tree .
+  | Leaf
+  | Node of (tree * nat * tree * tree)
+
+let and =
+  fun (b1 : bool) -> fun (b2 : bool) ->
+      match (b1, b2) with
+      | (True,b2) -> b2
+      | (False,_) -> False
+;;
+
+let nat_eq_unc =
+  fix (nat_eq_unc : nat * nat -> bool) =
+    fun (x1x2 : nat * nat) ->
+        match x1x2 with
+        | (O, O) -> True
+        | (S l, S r) -> nat_eq_unc (l, r)
+        | _ -> False
+;;
+
+
+synth
+  tree_eq : [(tree * tree)] -> bool calling [tree_eq] ;; 
+
+satisfying
+
+test forall (t: tree) . (tree_eq (t, t)) == True ;;
+test forall (t1: tree) . forall (t2: tree) . (tree_eq (t1, t2)) == (tree_eq (t2, t1)) ;;
+
+io tree_eq (Node (Leaf, O, Leaf, Leaf), Node (Leaf, O, Leaf, Node (Leaf, 1, Leaf, Leaf))) -> False ;;
+

@@ -1,0 +1,36 @@
+type bool =
+  | False
+  | True
+
+type trie = 
+  | Leaf
+  | Node of (trie * A * trie)
+
+let and =
+  fun (b1 : bool) -> fun (b2 : bool) ->
+      match (b1, b2) with
+      | (True,b2) -> b2
+      | (False,_) -> False
+;;
+
+let a_eq =
+  fun (x1x2 : A * A) ->
+    match x1x2 with
+    | (x1,x2) -> x1 == x2
+;;
+
+
+synth
+  trie_eq : [(trie * trie)] -> bool calling [trie_eq] ;; 
+
+satisfying
+
+test forall (t: trie) . (trie_eq (t, t)) == True ;;
+test forall (t: trie) . (trie_eq (Node (t, (| A 0), t), Node (t, (| A 1), t))) == False ;;
+test forall (t: trie) . (trie_eq (t, Node (t, (| A 0), t))) == False ;;
+test forall (t: trie) . (trie_eq (Leaf, Node (t, (| A 0), t))) == False ;;
+
+post trie_eq (fun (tt:trie * trie) -> fun (b:bool) ->
+  match tt with
+  | (t1,t2) -> (t1 == t2) == b)
+  ;;

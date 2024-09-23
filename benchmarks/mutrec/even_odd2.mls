@@ -1,0 +1,42 @@
+type nat =
+  | O 
+  | S of nat
+
+type bool =
+  | True
+  | False
+
+let not =
+  fun (b: bool) ->
+    match b with
+    | True -> False
+    | False -> True
+;;
+
+synth
+  is_even : [nat] -> bool calling [is_odd] ;;
+  is_odd  : [nat] -> bool calling [is_even] ;;
+
+satisfying
+
+let dec = fun (n: nat) ->
+  match n with
+  | O -> O
+  | S x -> x
+;;
+
+let inc = fun (n: nat) -> (S n)
+;;
+
+let and =
+  fun (b1: bool) ->
+    fun (b2: bool) ->
+      match b1 with
+      | True -> b2
+      | False -> False
+;;
+
+test forall (x : nat) . (is_odd (inc (inc x))) == (is_even (inc x)) ;;
+test forall (x : nat) . (is_even x) == (not (is_even (inc x))) ;;
+
+io is_odd O -> False ;;
